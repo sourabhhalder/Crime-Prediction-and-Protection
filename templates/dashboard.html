@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<h2>📊 User Dashboard</h2>
+
+<div id="history"></div>
+
+<script>
+fetch("/user_logs")
+.then(res => res.json())
+.then(data => {
+
+    let html = "<h3>Recent Predictions</h3>";
+
+    data.forEach(item => {
+        html += `<p>
+            Area: ${item.area} |
+            Score: ${item.score} |
+            Time: ${item.time}
+        </p>`;
+    });
+
+    document.getElementById("history").innerHTML = html;
+});
+</script>
+
+</body>
+</html>

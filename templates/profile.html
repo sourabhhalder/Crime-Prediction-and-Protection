@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<h2>👤 User Profile</h2>
+
+<form id="profileForm">
+    <input id="name" placeholder="Name"><br>
+    <input id="age" placeholder="Age"><br>
+
+    <select id="gender">
+        <option>Male</option>
+        <option>Female</option>
+    </select><br>
+
+    <button type="submit">Save Profile</button>
+</form>
+
+<script>
+document.getElementById("profileForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    localStorage.setItem("name", document.getElementById("name").value);
+    localStorage.setItem("age", document.getElementById("age").value);
+    localStorage.setItem("gender", document.getElementById("gender").value);
+
+    alert("Profile saved!");
+});
+</script>
+
+</body>
+</html>
