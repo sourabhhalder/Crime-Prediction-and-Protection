@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Stay Safe AI</title>
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Heatmap Plugin -->
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            text-align: center;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #map {
+            height: 300px;
+            margin: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>🚨 Stay Safe Crime Predictor</h2>
+
+<form id="form">
+    <input id="name" placeholder="Name" required><br><br>
+    <input id="age" type="number" placeholder="Age" required><br><br>
+
+    <select id="gender">
+        <option>Male</option>
+        <option>Female</option>
+    </select><br><br>
+
+    <input id="locality" placeholder="Area (e.g. Katra)" required><br><br>
+
+    <select id="time">
+        <option>Day</option>
+        <option>Evening</option>
+        <option>Night</option>
+    </select><br><br>
+
+    <button>Check Safety</button>
+</form>
+
+<div id="result"></div>
+
+<div id="map"></div>
+
+<canvas id="chart"></canvas>
+
+<script>
+let map = L.map('map').setView([25.4358, 81.8463], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+.addTo(map);
+
+let marker;
+let heatLayer;
+let chart;
+
+// FORM SUBMIT
+document.getElementById("form").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const data = {
+        locality: document.getElementById("locality").value,
+        gender: document.getElementById("gender").value,
+        time: document.getElementById("time").value
+    };
+
+    fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        // ---------------- RESULT ----------------
+        document.getElementById("result").innerHTML = `
+            <h3>Safety Score: ${data.safety_score}%</h3>
+            <p>${data.message}</p>
+            <p><b>Confidence:</b> ${data.confidence}%</p>
+            <p><b>Reasons:</b> ${data.reasons.join(", ")}</p>
+            <p><b>Nearest Police Station:</b> ${data.police_station}</p>
+            <p><b>Safety Advice:</b> ${data.advice.join(", ")}</p>
+        `;
+
+        // ---------------- MAP MARKER ----------------
+        if (marker) map.removeLayer(marker);
+
+        marker = L.marker([data.lat, data.lon])
+            .addTo(map)
+            .bindPopup("Selected Area")
+            .openPopup();
+
+        map.setView([data.lat, data.lon], 13);
+
+        // ---------------- HEATMAP ----------------
+        if (heatLayer) map.removeLayer(heatLayer);
+
+        heatLayer = L.heatLayer(data.heatmap, {
+            radius: 25,
+            blur: 15
+        }).addTo(map);
+
+        // ---------------- CHART ----------------
+        if (chart) chart.destroy();
+
+        chart = new Chart(document.getElementById("chart"), {
+            type: "line",
+            data: {
+                labels: data.forecast.map(d => d.day),
+                datasets: [{
+                    label: "Safety Forecast",
+                    data: data.forecast.map(d => d.score),
+                    fill: false
+                }]
+            }
+        });
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Backend not responding ❌");
+    });
+});
+</script>
+
+</body>
+</html>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
