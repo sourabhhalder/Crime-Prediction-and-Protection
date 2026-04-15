@@ -1,0 +1,21 @@
+id,area,latitude,longitude,crime_type,severity,date,time,time_of_day,target_group,gender,age,age_group,crime_count,police_station,status
+1,Civil Lines,25.45,81.84,Theft,3,01-03-2025,21:10,Night,All,Male,28,Adult,2,Civil Lines PS,Reported
+2,Katra,25.4358,81.8463,Harassment,4,02-03-2025,19:20,Evening,Women,Female,22,Adult,1,Katra PS,Unreported
+3,Allahpur,25.4602,81.8501,Assault,5,02-03-2025,23:40,Night,All,Male,35,Adult,3,Allahpur PS,Reported
+4,George Town,25.4421,81.8329,Chain Snatching,4,03-03-2025,20:05,Night,Women,Female,30,Adult,1,George Town PS,Closed
+5,Jhunsi,25.402,81.9,Kidnapping,5,04-03-2025,02:10,Night,Children,Male,12,Child,1,Jhunsi PS,Reported
+6,Naini,25.3925,81.863,Robbery,5,05-03-2025,22:45,Night,All,Male,40,Adult,2,Naini PS,Under Investigation
+7,Lukerganj,25.444,81.828,Theft,2,06-03-2025,14:30,Afternoon,All,Male,19,Teen,1,Lukerganj PS,Closed
+8,Daraganj,25.428,81.889,Harassment,4,06-03-2025,18:10,Evening,Women,Female,26,Adult,2,Daraganj PS,Unreported
+9,Phaphamau,25.503,81.885,Assault,4,07-03-2025,21:55,Night,All,Male,33,Adult,1,Phaphamau PS,Reported
+10,Kareli,25.418,81.815,Kidnapping,5,08-03-2025,17:40,Evening,Children,Female,10,Child,1,Kareli PS,Reported
+11,Meerapur,25.43,81.82,Harassment,5,08-03-2025,20:15,Night,Women,Female,24,Adult,1,Meerapur PS,Unreported
+12,Dhoomanganj,25.448,81.79,Robbery,5,09-03-2025,23:20,Night,All,Male,45,Adult,2,Dhoomanganj PS,Under Investigation
+13,Civil Lines,25.45,81.84,Kidnapping,5,10-03-2025,19:30,Evening,Children,Female,14,Teen,1,Civil Lines PS,Reported
+14,Katra,25.4358,81.8463,Theft,3,11-03-2025,16:10,Afternoon,All,Male,29,Adult,2,Katra PS,Closed
+15,Allahpur,25.4602,81.8501,Harassment,4,12-03-2025,20:50,Night,Women,Female,21,Adult,1,Allahpur PS,Unreported
+16,George Town,25.4421,81.8329,Robbery,5,12-03-2025,22:10,Night,All,Male,38,Adult,2,George Town PS,Reported
+17,Jhunsi,25.402,81.9,Theft,2,13-03-2025,13:20,Afternoon,All,Male,50,Senior,1,Jhunsi PS,Closed
+18,Naini,25.3925,81.863,Assault,4,14-03-2025,21:30,Night,All,Male,34,Adult,1,Naini PS,Reported
+19,Lukerganj,25.444,81.828,Harassment,3,14-03-2025,18:40,Evening,Women,Female,18,Teen,1,Lukerganj PS,Unreported
+20,Daraganj,25.428,81.889,Kidnapping,5,15-03-2025,20:00,Night,Children,Male,11,Child,1,Daraganj PS,Reported
