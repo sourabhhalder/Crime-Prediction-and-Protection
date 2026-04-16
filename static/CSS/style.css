@@ -8,6 +8,76 @@ body {
     text-align: center;
 }
 
+/* ---------------- SMOOTH SCROLL ---------------- */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ---------------- NAVBAR ---------------- */
+#navbar {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(90deg, #ff4da6, #ff66cc);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    z-index: 1000;
+}
+
+/* LOGO */
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+/* NAV BUTTON CONTAINER */
+.nav-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* UNIFORM BUTTON STYLE */
+.nav-btn {
+    padding: 8px 14px;
+    background: white;
+    color: #ff4da6;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-btn:hover {
+    background: #ffe6f2;
+    transform: scale(1.05);
+}
+
+.nav-btn:last-child:hover {
+    background: #ffcccc;
+    color: red;
+}
+
+/* ---------------- HERO SECTION ---------------- */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 30px;
+}
+
+.hero img {
+    width: 280px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
 /* ---------------- TITLE ---------------- */
 h2 {
     margin-top: 20px;
@@ -27,7 +97,7 @@ form {
 }
 
 /* ---------------- INPUTS ---------------- */
-input, select {
+input, select, textarea {
     width: 90%;
     padding: 10px;
     margin: 8px 0;
@@ -69,7 +139,6 @@ button:hover {
 /* ---------------- SAFETY SCORE ---------------- */
 #result h3 {
     font-size: 26px;
-    color: #00ffcc;
 }
 
 /* ---------------- TEXT ---------------- */
@@ -98,8 +167,32 @@ canvas {
     max-width: 800px;
 }
 
+/* ---------------- SECTIONS ---------------- */
+.section {
+    padding: 50px 20px;
+}
+
+.alt {
+    background: rgba(255,255,255,0.05);
+}
+
+/* ---------------- CONTACT FORM ---------------- */
+#contact form {
+    max-width: 400px;
+    margin: auto;
+}
+
 /* ---------------- RESPONSIVE ---------------- */
 @media (max-width: 768px) {
+
+    #navbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero {
+        flex-direction: column;
+    }
 
     form {
         width: 90%;
@@ -111,5 +204,9 @@ canvas {
 
     #map {
         width: 95%;
+    }
+
+    canvas {
+        width: 95% !important;
     }
 }

@@ -1,7 +1,8 @@
 import pandas as pd
 import os
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 # -------------------------------
 # LOAD DATA
@@ -12,80 +13,123 @@ crime_df = pd.read_csv(os.path.join(BASE_DIR, "crime_data_latlong.csv"))
 crime_df.columns = crime_df.columns.str.strip().str.lower()
 
 # -------------------------------
-# ENCODERS
+# CLEANING
 # -------------------------------
-le_area = LabelEncoder()
-le_gender = LabelEncoder()
-le_time = LabelEncoder()
+crime_df['severity'] = crime_df['severity'].astype(str).str.lower().str.strip()
 
-crime_df['area_enc'] = le_area.fit_transform(crime_df['area'])
-crime_df['gender_enc'] = le_gender.fit_transform(crime_df['gender'])
-crime_df['time_enc'] = le_time.fit_transform(crime_df['time_of_day'])
+severity_map = {'low': 1, 'medium': 2, 'high': 3}
+crime_df['severity_num'] = crime_df['severity'].map(severity_map).fillna(1)
 
-# -------------------------------
-# TARGET VARIABLE
-# -------------------------------
-crime_df['risk'] = crime_df['severity'].map({
-    'low': 0,
-    'medium': 1,
-    'high': 1
-}).fillna(0)
+crime_df['age'] = crime_df['age'].fillna(crime_df['age'].median())
+crime_df['crime_count'] = crime_df['crime_count'].fillna(1)
 
 # -------------------------------
-# FEATURES
+# 🔥 AREA INTELLIGENCE (KEY FEATURE)
 # -------------------------------
-X = crime_df[['area_enc', 'gender_enc', 'time_enc']]
-y = crime_df['risk']
+area_risk_map = crime_df.groupby('area')['severity_num'].mean().to_dict()
 
 # -------------------------------
-# MODEL TRAINING
+# ENCODING
 # -------------------------------
-model = RandomForestClassifier(n_estimators=100)
+encoder = OneHotEncoder(handle_unknown='ignore')
+
+X_cat = encoder.fit_transform(
+    crime_df[['area', 'gender', 'time_of_day']]
+).toarray()
+
+X_num = crime_df[['age', 'crime_count']].values
+
+X = np.hstack([X_cat, X_num])
+y = crime_df['severity_num']
+
+# -------------------------------
+# MODEL
+# -------------------------------
+model = RandomForestClassifier(
+    n_estimators=200,
+    max_depth=10,
+    random_state=42
+)
+
 model.fit(X, y)
 
 # -------------------------------
-# PREDICTION FUNCTION
+# PREDICTION
 # -------------------------------
-def predict_safety(area, gender, time):
+def predict_safety(area, gender, time, age=25):
 
     try:
-        area_val = le_area.transform([area])[0]
-    except:
-        area_val = 0
+        area = str(area).strip()
+        gender = str(gender).strip()
+        time = str(time).strip()
 
-    try:
-        gender_val = le_gender.transform([gender])[0]
-    except:
-        gender_val = 0
+        # -------------------------------
+        # 🔥 DYNAMIC CRIME INTENSITY
+        # -------------------------------
+        area_data = crime_df[crime_df['area'].str.lower() == area.lower()]
 
-    try:
-        time_val = le_time.transform([time])[0]
-    except:
-        time_val = 0
+        if not area_data.empty:
+            avg_crime = area_data['crime_count'].mean()
+        else:
+            avg_crime = crime_df['crime_count'].mean()
 
-    proba = model.predict_proba([[area_val, gender_val, time_val]])
+        # -------------------------------
+        # ENCODING INPUT
+        # -------------------------------
+        input_df = pd.DataFrame([{
+            "area": area,
+            "gender": gender,
+            "time_of_day": time
+        }])
 
-    # Handle single-class issue
-    if proba.shape[1] == 2:
-        prob = proba[0][1]
-    else:
-        prob = proba[0][0]
+        X_cat = encoder.transform(input_df).toarray()
+        X_num = np.array([[age, avg_crime]])
 
-    # Smooth values
-    prob = max(0.1, min(0.9, prob))
+        X_input = np.hstack([X_cat, X_num])
 
-    safety_score = int((1 - prob) * 100)
+        # -------------------------------
+        # MODEL PREDICTION
+        # -------------------------------
+        proba = model.predict_proba(X_input)[0]
 
-    return safety_score, prob
+        # risk from model
+        risk_model = (proba[1] * 0.5 + proba[2] * 1.0)
+
+        # -------------------------------
+        # 🔥 AREA RISK BOOST
+        # -------------------------------
+        area_risk = area_risk_map.get(area, 2)
+
+        risk = (risk_model * 0.6) + ((area_risk / 3) * 0.4)
+
+        # -------------------------------
+        # FINAL SAFETY SCORE
+        # -------------------------------
+        safety_score = int((1 - risk) * 100)
+
+        # clamp
+        safety_score = max(5, min(95, safety_score))
+
+        return safety_score, risk
+
+    except Exception as e:
+        print("ML ERROR:", str(e))
+        return 50, 0.5
+
 
 # -------------------------------
-# EXPLAINABILITY
+# AREA INSIGHTS
 # -------------------------------
 def get_area_insights(area):
 
-    area_data = crime_df[crime_df['area'].str.lower() == area.lower()]
+    try:
+        area_data = crime_df[crime_df['area'].str.lower() == str(area).lower()]
 
-    if area_data.empty:
+        if area_data.empty:
+            return {}
+
+        return area_data['severity'].value_counts().to_dict()
+
+    except Exception as e:
+        print("INSIGHTS ERROR:", str(e))
         return {}
-
-    return area_data['severity'].value_counts().to_dict()
